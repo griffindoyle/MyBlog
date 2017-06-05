@@ -1,8 +1,8 @@
 baseurl = "/"
 relativeurls = true
 languageCode = "en-us"
-title = "A Hugo website"
-theme = "simple-a"
+title = "Griffin Doyle's Data Science Blog"
+theme = "vienna"
 googleAnalytics = ""
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "_files$", "_cache$"]

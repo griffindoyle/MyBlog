@@ -14,4 +14,7 @@ new_post("Second New Post (in Plain Markdown)", rmd = TRUE)
 
 serve_site()
 
+
 install_theme('AlexFinn/simple-a')
+install_theme('keichi/vienna')
+new_post("Miles per Gallon Analysis", rmd = TRUE)

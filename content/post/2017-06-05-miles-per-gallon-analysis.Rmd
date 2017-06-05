@@ -1,0 +1,55 @@
+---
+title: Miles per Gallon Analysis
+author: ~
+date: '2017-06-05'
+slug: miles-per-gallon-analysis
+categories: []
+tags: []
+Categories: []
+Description: ''
+Tags: []
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+<!-- This is how you comment in R Markdown-->
+
+## Predicting MPG
+
+The first thing I looked at to predict the MPG of a given a car is the weight and horsepower of the car.
+
+```{r plot1, echo=FALSE}
+ggplot(mtcars, aes(x=wt, y=mpg, color = hp)) + geom_point() + scale_color_continuous(low = "blue", high = "red", name = "Horsepower") + xlab("Weight (thousands of pounds)") + ylab("MPG") + ggtitle("MPG vs. Weight") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+As the plot unsurprisingly shows, there this a negative linear relationship between the weight and its MPG. Additionally, the cars with the highest horsepower tend to have lower MPGs, and cars with the low horsepower have higher MPGs. Because horsepower and weight seem to also be correlated, I decided to add an interaction term between the two variables.
+I next looked at the relationship between the time it took for a car to drive a quarter-mile and its MPG, broken down by the number of cylinders the cars' engine had. 
+
+```{r plot2, echo=FALSE}
+mtcars$Cylinders = factor(mtcars$cyl)
+
+ggplot(mtcars, aes(x = qsec, y = mpg, color = Cylinders)) + geom_point() + scale_color_discrete() + xlab("Quarter Mile Time (seconds)") + ylab("MPG") + ggtitle("MPG vs. Quarter Mile Time") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+The cars with the fastest times tend to have lower MPGs, and, again unsurprisingly, these cars tended to have 8-cylinder engines. On the other hand, cars with the slowest times and the highest MPGs tended to have 4-cylinder engines. After looking at both of these plots, I decided to build the following model to predict any cars MPG:
+
+```{r coefficients, echo=FALSE}
+mpgmodel = lm(mpg ~ hp + wt + qsec + cyl + wt:hp, data = mtcars)
+
+coef(mpgmodel)
+```
+
+Where:  
+
+  * hp = Horsepower  
+
+  * wt = Weight (thousands of pounds)  
+
+  * qsec = Quarter Mile Time (seconds)  
+
+  * cyl = Engine Cylinders  
+
+The model had an R-squared of 89.25%

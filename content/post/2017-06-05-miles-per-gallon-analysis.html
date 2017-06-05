@@ -1,0 +1,33 @@
+---
+title: Miles per Gallon Analysis
+author: ~
+date: '2017-06-05'
+slug: miles-per-gallon-analysis
+categories: []
+tags: []
+Categories: []
+Description: ''
+Tags: []
+---
+
+
+
+<!-- This is how you comment in R Markdown-->
+<div id="predicting-mpg" class="section level2">
+<h2>Predicting MPG</h2>
+<p>The first thing I looked at to predict the MPG of a given a car is the weight and horsepower of the car.</p>
+<p><img src="/post/2017-06-05-miles-per-gallon-analysis_files/figure-html/plot1-1.png" width="672" /></p>
+<p>As the plot unsurprisingly shows, there this a negative linear relationship between the weight and its MPG. Additionally, the cars with the highest horsepower tend to have lower MPGs, and cars with the low horsepower have higher MPGs. Because horsepower and weight seem to also be correlated, I decided to add an interaction term between the two variables. I next looked at the relationship between the time it took for a car to drive a quarter-mile and its MPG, broken down by the number of cylinders the cars’ engine had.</p>
+<p><img src="/post/2017-06-05-miles-per-gallon-analysis_files/figure-html/plot2-1.png" width="672" /></p>
+<p>The cars with the fastest times tend to have lower MPGs, and, again unsurprisingly, these cars tended to have 8-cylinder engines. On the other hand, cars with the slowest times and the highest MPGs tended to have 4-cylinder engines. After looking at both of these plots, I decided to build the following model to predict any cars MPG:</p>
+<pre><code>## (Intercept)          hp          wt        qsec         cyl       hp:wt 
+## 40.55301627 -0.10523472 -8.59963901  0.48836421 -0.04228325  0.02756012</code></pre>
+<p>Where:</p>
+<ul>
+<li><p>hp = Horsepower</p></li>
+<li><p>wt = Weight (thousands of pounds)</p></li>
+<li><p>qsec = Quarter Mile Time (seconds)</p></li>
+<li><p>cyl = Engine Cylinders</p></li>
+</ul>
+<p>The model had an R-squared of 89.25%</p>
+</div>
