@@ -1,0 +1,93 @@
+---
+title: "Movie Recommendations Through Collaborative Filtering"
+author: "Griffin Doyle"
+date: '2017-06-19'
+categories: []
+Tags: []
+slug: movie-recommendations-through-collaborative-filtering
+tags: []
+Description: ''
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lsa)
+library(dplyr)
+library(knitr)
+library(tidyr)
+library(readr)
+library(reshape2)
+```
+
+## Item Based Collaborative Filtering
+
+Item based collaborative filtering is a model-based algorithm for making recommendations. An example of this technique in use is Netflix. specifically, when it gives you movie and TV show options based on "Because you watched Title X:". What is doing here is showing you titles of programs that you would probably like based on you liking "Title X", whatever that may be. In this post, I will walk through my collaborative filtering model for recommending movies (not quite the level of Netflix however). The dataset I used is from Movielens.org. The data is from over 650 users rating around 20 movies each, with the total amount coming to about 10,000 movies.
+
+## How Does it Work?
+
+The similarity values between items come from observing the users who have rated both items. The similarity of two items is dependent upon the ratings given to other items by the same two users. In my model, I used cosine-based similarity, also known as vector-based similarity. This technique views two items and their ratings as a vector value and defines the similarity as the angle between the two vectors. Once this step is complete, the model goes through and finds the 10 movie titles with the highest similarity scores for each given title. Here is what the movie recommendation data looks like:
+
+```{r movie recs, echo=FALSE}
+ratings = movies <- read_csv("~/Data Science/MovieRecs/ratings.csv")
+movies = read_csv("~/Data Science/MovieRecs/movies.csv")
+
+ratings = ratings %>% select(userId, movieId, rating)
+r_matrix = as.matrix(ratings %>% dcast(userId ~ movieId, value.var = "rating"))
+
+movies$movieId = as.numeric(movies$movieId)
+
+r_only = r_matrix[, 2:7501]
+r_only[is.na(r_only)] = 0
+
+
+item_sim = cosine(as.matrix(r_only))
+item_sim = as.data.frame(item_sim)
+
+movie_recs = matrix(NA, nrow = ncol(item_sim), ncol = 11, dimnames = list(colnames(item_sim)))
+
+
+for (i in 1:ncol(item_sim)) {
+  movie_recs[i,] = (t(head(n = 11, rownames(item_sim[order(item_sim[,i], decreasing = TRUE),][i]))))
+}
+
+colnames(movie_recs) = c("Movie", "Rec 1", "Rec 2", "Rec 3", "Rec 4", "Rec 5", 
+                         "Rec 6", "Rec 7", "Rec 8", "Rec 9", "Rec 10")
+
+movie_recs = as.data.frame(movie_recs)
+
+
+kable(head(movie_recs), caption = "Movie Recommendations")
+```
+
+## The Recommendation Function
+Having a dataset of numbers representing recommendations movie is great, but not very useful at all if you do not have all 10,000 movie IDs memorized. To combat this, I created a movie recommendation function. It has a single parameter, the movie you want recommendations from, and outputs the top 10 movies you would most likely enjoy based off your input movie. Here is what the function looks like:
+
+```{r rec formula, echo=TRUE}
+movie_recomendation = function(m) {
+    mid = as.numeric(movies$movieId[grep(m, movies$title)])
+    recs = movie_recs[which(movie_recs$Movie == mid),]
+    
+    movie_list = c()
+    
+    for (i in 1:length(recs)) {
+      m_title = movies$title[which(movies$movieId == as.numeric(as.character(recs[[i]])))]
+      movie_list = c(movie_list, m_title)
+    }    
+
+    counter = 1
+    print(sprintf("Because you liked %s, you might also like:", movie_list[1]))
+    for (n in 2:length(movie_list)){
+      print(sprintf("%d. %s", counter, movie_list[n]))
+      counter = counter + 1
+    }
+}
+```
+
+The function takes the input movie title and finds its corresponding movie ID. After that, it takes that movie ID and finds it in the recoomendation dataset to find the recommendation movie IDs. It then finishes by taking the recommendation IDs and feeding it back into the movie dataset to find the correct titles to recommend. Enough explanation, lets see it in action. If you are like me, or anybody else with decent taste in movies, you think "School of Rock" is one of the greatest movies ever made. Well let's see what else I should watch because I like "School of Rock":
+
+```{r School of ROck, echo=TRUE}
+movie_recomendation("School of Rock")
+```
+
+There you go, 10 new movies that I can go watch. And judging from the movies I have already seen on this list, it is actually very accurate in picking similar movies to "School of Rock"!

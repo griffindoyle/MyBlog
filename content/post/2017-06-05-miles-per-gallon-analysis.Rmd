@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
-<!-- This is how you comment in R Markdown-->
 
 ## Predicting MPG
 
